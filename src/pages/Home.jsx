@@ -13,32 +13,43 @@ const Home = () => {
 
   // APi-yi getirmek
   const getMovieRequest = async (searchValue) => {
-    const url = `https://www.omdbapi.com/?s=${searchValue}&apikey=7c61209b`;
+    const url = `https://www.omdbapi.com/?s=${searchValue}&apikey=f718e734`;
     const response = await fetch(url);
     const responseJson = await response.json();
     if (responseJson.Search) {
       setMovies(responseJson.Search);
     }
   };
+
   useEffect(() => {
     getMovieRequest(searchValue);
   }, [searchValue]);
+
   useEffect(() => {
     const movieFavorites = JSON.parse(
       localStorage.getItem("movie-app-favorites")
     );
-    setFavorites(movieFavorites);
+    if (movieFavorites) {
+      setFavorites(movieFavorites);
+    } else {
+      setFavorites([]);
+    }
   }, []);
+
   // Favorilere dusen mehsullari LocalStorage-e setlemek
   const saveToLocalStorage = (items) => {
     localStorage.setItem("movie-app-favorites", JSON.stringify(items));
   };
+
   // Filmi elave etmek
   const addFavoriteMovie = (movie) => {
-    const newFavoriteList = [...favorites, movie];
-    setFavorites(newFavoriteList);
-    saveToLocalStorage(newFavoriteList);
+    if (!favorites.some((favorite) => favorite.imdbID === movie.imdbID)) {
+      const newFavoriteList = [...favorites, movie];
+      setFavorites(newFavoriteList);
+      saveToLocalStorage(newFavoriteList);
+    }
   };
+
   // Film elavelerden silmek
   const removeFavoriteMovie = (movie) => {
     const newFavoriteList = favorites.filter(
@@ -47,6 +58,7 @@ const Home = () => {
     setFavorites(newFavoriteList);
     saveToLocalStorage(newFavoriteList);
   };
+
   return (
     <div className="home-section">
       <div className="home-container">
@@ -65,7 +77,6 @@ const Home = () => {
             handleFavoritesClick={removeFavoriteMovie}
             favoriteComponent={RemoveFavorite}
           />
-
           <Link to="/favorites">
             <button type="submit">Go To Basket</button>
           </Link>
